@@ -1,0 +1,120 @@
+import java.util.Scanner;
+
+public class GameofLife {
+	static char[][] arr = new char[16][16];
+	static char[][] mirror = new char[arr.length][arr[0].length];
+	static char dead = '□';
+	static char live = '■';
+	static int countDead = 0;
+	static int countLive = 0;
+
+	static void initializeArray(int liveSquares) {
+		//Fill our array with empty squares
+		for (int row = 0; row < arr.length; row++) {
+			for (int col = 0; col < arr.length; col++) {
+				arr[row][col] = dead;
+			}
+		}
+		//Input full squares from console
+		for (int i = 0; i < liveSquares; i++) {
+			String str = new Scanner(System.in).nextLine();
+			int x = Integer.parseInt((str.trim().substring(0, str.indexOf(" "))));
+			int y = Integer.parseInt((str.trim().substring(str.indexOf(" ") + 1)));
+			arr[x][y] = live;
+		}
+	}
+
+	public static void main(String[] args) throws InterruptedException {
+		System.out.println("Matrix of 16x16. Input number of live squres and then their coordinates:");
+		int liveSquares = new Scanner(System.in).nextInt();
+
+		initializeArray(liveSquares);
+		printArray(arr);
+
+		while (true) {
+			iterate();
+			printArray(mirror);
+		}
+	}
+
+	static void countDeadOrLive(int row, int col) {
+		if ((col < 0) || (row < 0) || (col >= arr[0].length) || (row >= arr.length)) {
+			// We are out of the array
+			return;
+		}
+
+		if (arr[row][col] == dead) {
+			countDead++;
+		} else {
+			countLive++;
+		}
+	}
+
+	static void iterate() {
+		for (int row = 0; row < arr.length; row++) {
+			for (int col = 0; col < arr.length; col++) {
+				moveDown(row, col);
+				moveUp(row, col);
+				moveRight(row, col);
+				moveLeft(row, col);
+				moveRight(row + 1, col);
+				moveLeft(row + 1, col);
+				moveRight(row - 1, col);
+				moveLeft(row - 1, col);
+
+				liveOrDie(row, col);
+				countDead = 0;
+				countLive = 0;
+			}
+		}
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = 0; j < arr.length; j++) {
+				arr[i][j] = mirror[i][j];
+			}
+		}
+	}
+
+	static void moveUp(int row, int col) {
+		countDeadOrLive(row - 1, col);
+	}
+
+	static void moveDown(int row, int col) {
+		countDeadOrLive(row + 1, col);
+	}
+
+	static void moveLeft(int row, int col) {
+		countDeadOrLive(row, col - 1);
+	}
+
+	static void moveRight(int row, int col) {
+		countDeadOrLive(row, col + 1);
+	}
+
+	static void liveOrDie(int row, int col) {
+		if (arr[row][col] == live) {
+			if (countLive < 2 || countLive > 3) {
+				mirror[row][col] = dead;
+			} else {
+				mirror[row][col] = live;
+			}
+		} else {
+			if (countLive == 3) {
+				mirror[row][col] = live;
+			} else {
+				mirror[row][col] = dead;
+			}
+		}
+	}
+
+	static void printArray(char[][] arr) throws InterruptedException {
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = 0; j < arr.length; j++) {
+				System.out.print(arr[i][j]);
+			}
+			System.out.println();
+		}
+		Thread.sleep(1000);
+		System.out.println();
+	}
+
+}
